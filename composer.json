@@ -1,0 +1,27 @@
+{
+    "name": "danielz/settle-sdk-php",
+    "description": "PHP SDK for connecting to the Settle Payment Platform.",
+    "type": "library",
+    "license": "apache-2.0",
+    "authors": [
+        {
+            "name": "Daniel Zahariev",
+            "email": "daniel.zahariev@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^7.4|^8.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-openssl": "*"
+    },
+    "require-dev": {
+        "pestphp/pest": "^1.20"
+    },
+    "autoload": {
+        "psr-4": {
+            "Danielz\\SettleApi\\": "src/"
+        }
+    }
+}
