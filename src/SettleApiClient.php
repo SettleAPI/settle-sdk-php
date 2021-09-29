@@ -2,6 +2,7 @@
 
 namespace Danielz\SettleApi;
 
+use Exception;
 
 class SettleApiClient
 {
@@ -35,7 +36,7 @@ class SettleApiClient
      * @param string $method
      * @param string $path
      * @param array $postFields
-     * @return array
+     * @return array|bool
      * @throws SettleApiException
      */
     public function call(string $method, string $path, array $postFields = [])
@@ -67,20 +68,19 @@ class SettleApiClient
         $response = @json_decode($response_body, true);
         curl_close($ch);
 
-        switch ($httpCode) {
-            case 200:
-            case 201:
+        switch (true) {
+            case $httpCode == 204:
+                return true;
+
+            case $httpCode >= 200 && $httpCode < 300:
                 return $response;
-            case 400:
-                if ($response !== null) {
-                    throw new SettleApiException($response->error_description, 400);
-                }
-                throw new SettleApiException('Bad request', 400);
-            case 500:
-            case 502:
-                throw new SettleApiException('Something went wrong.', 500);
+
             default:
-                throw new SettleApiException('Something went wrong.', 600);
+                if ($response !== null) {
+                    $message = $response['error_description'] ?? $response['error_detail'] ?? $response['error_type'] ?? 'Something went wrong.';
+                    throw new SettleApiException($message, $httpCode);
+                }
+                throw new SettleApiException('Something went wrong.', $httpCode);
         }
     }
 

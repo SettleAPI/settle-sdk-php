@@ -2,16 +2,11 @@
 
 namespace Danielz\SettleApi;
 
-
-use Danielz\SettleApi\MerchantApi\MerchantApi;
-
 /**
  * Class SettleApi
  * @package Danielz
- *
- * @property MerchantApi merchants
  */
-class SettleApi
+abstract class SettleApi
 {
     private SettleApiClient $api_client;
     private $materializedProperties = [];
@@ -25,11 +20,22 @@ class SettleApi
         $this->api_client = $api_client;
     }
 
-    final protected function call($method, $path, $data = [])
+    /**
+     * @param string $method
+     * @param string $path
+     * @param array $data
+     * @return array
+     * @throws SettleApiException
+     */
+    final protected function call(string $method, string $path, array $data = [])
     {
         return $this->api_client->call($method, $path, $data);
     }
 
+    /**
+     * @param $name
+     * @return mixed|null
+     */
     public function __get($name)
     {
         if (!isset($this->materializedProperties[$name])) {
@@ -45,12 +51,11 @@ class SettleApi
         return $this->materializedProperties[$name];
     }
 
-    protected function getMagicProperties()
+    /**
+     * @return string[]
+     */
+    protected function getMagicProperties(): array
     {
-        return [
-            'merchants' => MerchantApi::class,
-        ];
+        return [];
     }
-
-
 }

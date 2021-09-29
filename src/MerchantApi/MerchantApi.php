@@ -23,7 +23,10 @@ use Danielz\SettleApi\SettleApi;
  */
 class MerchantApi extends SettleApi
 {
-    public function getMagicProperties()
+    /**
+     * @return string[]
+     */
+    protected function getMagicProperties(): array
     {
         return [
             'api_keys' => ApiKeys::class,
