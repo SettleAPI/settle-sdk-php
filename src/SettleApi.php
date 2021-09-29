@@ -22,7 +22,6 @@ class SettleApi
      */
     final public function __construct(SettleApiClient $api_client)
     {
-        echo "new " . static::class . " class  \n";
         $this->api_client = $api_client;
     }
 
