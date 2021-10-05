@@ -14,7 +14,7 @@ before_install:
 
 
 install:
-  - travis_retry composer install --dev --no-interaction
+  - travis_retry composer install --no-interaction
 
 script:
   - vendor/bin/pest
