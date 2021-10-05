@@ -11,7 +11,7 @@ $settle_public_key = $_ENV['SETTLE_PUBLIC_KEY'] ?? '';
 if ($settle_public_key && strpos($settle_public_key, 'PUBLIC') === false) {
     $settle_public_key = base64_decode($settle_public_key);
 }
-print_r($_ENV);
+print_r($_SERVER);
 
 $settle_private_key = $_ENV['SETTLE_PRIVATE_KEY'] ?? '';
 if ($settle_private_key && strpos($settle_private_key, 'PRIVATE') === false) {
