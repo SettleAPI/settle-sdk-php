@@ -17,11 +17,15 @@
         "ext-openssl": "*"
     },
     "require-dev": {
-        "pestphp/pest": "^1.20"
+        "pestphp/pest": "^1.20",
+        "vlucas/phpdotenv": "^5.3"
     },
     "autoload": {
         "psr-4": {
             "Danielz\\SettleApi\\": "src/"
         }
+    },
+    "scripts": {
+        "test": "pest"
     }
 }
