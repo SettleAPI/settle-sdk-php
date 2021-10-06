@@ -20,4 +20,4 @@ script:
 
 after_success:
   - travis_retry composer require php-coveralls/php-coveralls
-  - travis_retry vendor/bin/php-coveralls --coverage_clover=coverage/logs/clover.xml -v
+  - travis_retry vendor/bin/php-coveralls --coverage_clover=coverage/logs/clover.xml --json_path=coverage/logs/coveralls-upload.json -v
