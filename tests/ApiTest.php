@@ -154,7 +154,7 @@ test('API [not working]: Logo, SalesSummary, Settlements, SettlementAccounts', f
         $merchant_api->settlement_accounts->update(1, []);
         expect(true)->toBeFalse(); // make sure we don't hit this line
     } catch (SettleApiException $e) {
-        expect($e->getCode())->toBe(400);
+        expect($e->getCode())->toBeIn([400, 411]);
     }
 });
 
