@@ -8,16 +8,11 @@ cache:
   directories:
     - $HOME/.composer/cache
 
-before_install:
-  - travis_retry composer self-update
-
-
 install:
-  - travis_retry composer install --no-interaction
+  - composer install --no-interaction
 
 script:
   - vendor/bin/pest
 
 after_success:
-  - travis_retry composer require php-coveralls/php-coveralls
-  - travis_retry vendor/bin/php-coveralls --coverage_clover=coverage/logs/clover.xml --json_path=coverage/logs/coveralls-upload.json -v
+  - vendor/bin/php-coveralls --coverage_clover=coverage/logs/clover.xml --json_path=coverage/logs/coveralls-upload.json -v

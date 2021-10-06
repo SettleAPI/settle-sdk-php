@@ -18,6 +18,7 @@
     },
     "require-dev": {
         "pestphp/pest": "^1.20",
+        "php-coveralls/php-coveralls": "^2.4",
         "vlucas/phpdotenv": "^5.3"
     },
     "autoload": {
@@ -26,6 +27,7 @@
         }
     },
     "scripts": {
-        "test": "pest"
+        "test": "set -a; source .env; pest",
+        "coverage": "set -a; source .env; php-coveralls --coverage_clover=coverage/logs/clover.xml --json_path=coverage/logs/coveralls-upload.json -v"
     }
 }
