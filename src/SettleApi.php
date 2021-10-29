@@ -54,8 +54,16 @@ abstract class SettleApi
     /**
      * @return string[]
      */
-    protected function getMagicProperties(): array
+    protected function getMagicProperties()
     {
         return [];
+    }
+
+    /**
+     * @return string
+     */
+    protected function createLink($template, array $data = [])
+    {
+        return $this->api_client->createLink($template, $data);
     }
 }

@@ -15,6 +15,12 @@ class SettleApiClient
     const BASE_URL_PRODUCTION = 'https://api.settle.eu/merchant/v1/';
     const BASE_URL_SANDBOX = 'https://api.sandbox.settle.eu/merchant/v1/';
 
+
+    const SETTLE_LINK = 'https://settle.eu';
+    const PAYMENT_LINK = 'https://settle.eu/p/:payment_request_id/';
+    const PAYMENT_LINK_MOBILE = 'https://settle.eu/p/:payment_request_id/';
+    const PAYMENT_LINK_MOBILE_SANDBOX = 'https://settledemo.page.link/?apn=eu.settle.app.sandbox&ibi=eu.settle.app.sandbox&isi=1453180781&ius=eu.settle.app.firebaselink&link=https://settle-demo://qr/http://settle.eu/p/:payment_request_id/';
+
     /**
      * SettleApi constructor.
      * @param string $merchantId
@@ -29,6 +35,22 @@ class SettleApiClient
         $this->userId = $userId;
         $this->publicKey = $publicKey;
         $this->privateKey = $privateKey;
+        $this->isSandbox = $isSandbox;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsSandbox()
+    {
+        return $this->isSandbox;
+    }
+
+    /**
+     * @param $isSandbox
+     */
+    public function setIsSandbox($isSandbox)
+    {
         $this->isSandbox = $isSandbox;
     }
 
@@ -127,5 +149,26 @@ class SettleApiClient
         $headers[] = 'Authorization: RSA-SHA256 ' . base64_encode($signature);
 
         return $headers;
+    }
+
+    public function createLink($template, array $data = [])
+    {
+        switch($template) {
+            default:
+                $link = self::SETTLE_LINK;
+                break;
+            case 'payment_link':
+                $link = self::PAYMENT_LINK;
+                break;
+            case 'payment_link_mobile':
+                $link = $this->isSandbox ? self::PAYMENT_LINK_MOBILE_SANDBOX : self::PAYMENT_LINK_MOBILE;
+                break;
+        }
+
+        foreach($data as $param => $value) {
+            $link = str_replace(":{$param}", $value, $link);
+        }
+
+        return $link;
     }
 }

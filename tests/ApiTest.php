@@ -8,7 +8,14 @@ use Danielz\SettleApi\SettleApiException;
 // Can we pass `serial_number` when creating shortlinks
 //
 
-$merchant_api = new MerchantApi(new SettleApiClient(SETTLE_MERCHANT_ID, SETTLE_USER_ID, SETTLE_PUBLIC_KEY, SETTLE_PRIVATE_KEY, SETTLE_IN_SANDBOX));
+$api_client = new SettleApiClient(
+    SETTLE_MERCHANT_ID,
+    SETTLE_USER_ID,
+    SETTLE_PUBLIC_KEY,
+    SETTLE_PRIVATE_KEY,
+    SETTLE_IN_SANDBOX
+);
+$merchant_api = new MerchantApi($api_client);
 
 test('API: Api Keys', function() {
     global $merchant_api;
@@ -106,24 +113,22 @@ test('API: Settlements', function() {
     expect((int)$settlements_api->get(1)['id'])->toBe(1);
 });
 
-test('API [not working]: Logo, SalesSummary, Settlements, SettlementAccounts', function() {
+test('API: Payment Requests', function() {
     global $merchant_api;
+    $payment_requests_api = $merchant_api->payment_requests;
 
-    try {
-        // Currently this endpoint isn't working
-        $merchant_api->logo->get(SETTLE_MERCHANT_ID);
-        expect(true)->toBeFalse(); // make sure we don't hit this line
-    } catch (SettleApiException $e) {
-        expect($e->getCode())->toBe(404);
-    }
+    $requests = $payment_requests_api->list();
+    expect(isset($requests['items']))->toBeTrue();
+    expect(count($requests['items']))->toBeGreaterThan(1);
+    expect('pcqghkrpztq1')->toBeIn(array_column($requests['items'],'tid'));
 
-    try {
-        // Missing 'X-Appengine-Inbound-Appid' header
-        $merchant_api->sales_summary->get();
-        expect(true)->toBeFalse(); // make sure we don't hit this line
-    } catch (SettleApiException $e) {
-        expect($e->getCode())->toBe(400);
-    }
+    $request = $payment_requests_api->get('pcqghkrpztq1');
+    expect(isset($request['id']))->toBeTrue();
+    expect($request['id'])->toBe('pcqghkrpztq1');
+});
+
+test('API [not working]: Settlements', function() {
+    global $merchant_api;
 
     try {
         // This returns an odd response code
@@ -139,22 +144,6 @@ test('API [not working]: Logo, SalesSummary, Settlements, SettlementAccounts', f
         expect(true)->toBeFalse(); // make sure we don't hit this line
     } catch (SettleApiException $e) {
         expect($e->getCode())->toBe(400);
-    }
-
-    try {
-        // Missing 'X-Appengine-Inbound-Appid' header
-        $merchant_api->settlement_accounts->get(1);
-        expect(true)->toBeFalse(); // make sure we don't hit this line
-    } catch (SettleApiException $e) {
-        expect($e->getCode())->toBe(400);
-    }
-
-    try {
-        // Missing 'X-Appengine-Inbound-Appid' header
-        $merchant_api->settlement_accounts->update(1, []);
-        expect(true)->toBeFalse(); // make sure we don't hit this line
-    } catch (SettleApiException $e) {
-        expect($e->getCode())->toBeIn([400, 411]);
     }
 });
 
@@ -180,4 +169,35 @@ test('API: Profile, Balance, StatusCodes', function() {
 
     $status_code_5901 = $merchant_api->status_codes->get(5901);
     expect($status_code_5901['name'])->toBe('INSUFFICIENT_MCASH_BALANCE');
+});
+
+
+test('API: Links', function() {
+    global $api_client, $merchant_api;
+
+    expect($api_client->createLink('missing'))->toBe(SettleApiClient::SETTLE_LINK);
+    expect($api_client->createLink('payment_link'))->toBe(SettleApiClient::PAYMENT_LINK);
+
+    $isSandbox = $api_client->getIsSandbox();
+    $api_client->setIsSandbox(true);
+    expect($api_client->createLink('payment_link_mobile'))->toBe(SettleApiClient::PAYMENT_LINK_MOBILE_SANDBOX);
+    $api_client->setIsSandbox(false);
+    expect($api_client->createLink('payment_link_mobile'))->toBe(SettleApiClient::PAYMENT_LINK_MOBILE);
+    $api_client->setIsSandbox($isSandbox);
+
+    $api = $merchant_api->payment_requests;
+    expect($api->getPaymentLink('pcqghkrpztq1'))->toBe('https://settle.eu/p/pcqghkrpztq1/');
+    expect($api->getMobilePaymentLink('pcqghkrpztq1'))->toBe('https://settledemo.page.link/?apn=eu.settle.app.sandbox&ibi=eu.settle.app.sandbox&isi=1453180781&ius=eu.settle.app.firebaselink&link=https://settle-demo://qr/http://settle.eu/p/pcqghkrpztq1/');
+});
+
+test('API: Utility', function() {
+    global $api_client;
+
+    try {
+        // Test unknown API path to confirm exceptions are working
+        $api_client->call('GET', 'unknown');
+        expect(true)->toBeFalse(); // make sure we don't hit this line
+    } catch (SettleApiException $e) {
+        expect($e->getCode())->toBe(404);
+    }
 });

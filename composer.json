@@ -28,6 +28,10 @@
     },
     "scripts": {
         "test": "set -a; source .env; pest",
-        "coverage": "set -a; source .env; php-coveralls --coverage_clover=coverage/logs/clover.xml --json_path=coverage/logs/coveralls-upload.json -v"
+        "coverage": "set -a; source .env; php-coveralls --coverage_clover=coverage/logs/clover.xml --json_path=coverage/logs/coveralls-upload.json -v",
+        "all": [
+            "@test",
+            "@coverage"
+        ]
     }
 }
