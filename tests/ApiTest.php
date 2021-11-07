@@ -186,7 +186,7 @@ test('API: Links', function() {
     $api_client->setIsSandbox($isSandbox);
 
     $api = $merchant_api->payment_requests;
-    expect($api->getPaymentLink('pcqghkrpztq1'))->toBe('https://settle.eu/p/pcqghkrpztq1/');
+    expect($api->getPaymentLink('pcqghkrpztq1'))->toBe('http://settle.eu/p/pcqghkrpztq1/');
     expect($api->getMobilePaymentLink('pcqghkrpztq1'))->toBe('https://settledemo.page.link/?apn=eu.settle.app.sandbox&ibi=eu.settle.app.sandbox&isi=1453180781&ius=eu.settle.app.firebaselink&link=https://settle-demo://qr/http://settle.eu/p/pcqghkrpztq1/');
 });
 
@@ -200,4 +200,19 @@ test('API: Utility', function() {
     } catch (SettleApiException $e) {
         expect($e->getCode())->toBe(404);
     }
+});
+
+test('Callback validation', function () {
+   global $api_client;
+
+    $body = '{"meta": {"seqno": 0, "labels": ["timeline"], "uri": "https://api-dot-settle-core-demo.appspot.com/merchant/v1/payment_request/phkan3yvn4ex/outcome/", "id": "daMUL1Q1R9yP9K_EQrVnDQ", "context": "ctx:daMUL1Q1R9yP9K_EQrVnDQ", "timestamp": "2021-11-07 07:20:59", "event": "payment_aborted_by_customer"}, "object": {"status": "fail", "customer": "token:5703313655857152", "refunds": [], "auth_amount": 0, "auth_additional_amount": 0, "credit": false, "captures": [], "pos_id": "pos123", "date_modified": "2021-11-07 07:20:42", "date_expires": "2021-11-07 13:20:42", "currency": "NOK", "amount": 2900, "interchange_fee": 0, "status_code": 5006, "tid": "phkan3yvn4ex", "attachment_uri": "https://settle-core-demo.appspot.com/_ah/upload/AMmfu6a49Ta2AXX8NEgjcDCCmlfTwjiPOZ6OBK4uQ0LRwFbU-hR1JU6clKjAhFvaWjL6u6JvqLxRISX1CtXW4yp7yNqNY8-ZNVNFFhkajid8QeqnHNBIXVmtg4p7KJAVm3ElYqXPuGG9_qsxF7mf3rpmrbuYjzp2fT1iQaOwzVe--LV30upHVcxkDVy0lpJMxyKh86RKswuqlcVRM4JHpwlCW-aONlM4roY2mF14Al3fEebjTPg8n8oSlvdcwfFcbIvDTBTlpLCOOgZGGipOl5zkd4eIH8zHP6kpSwy_V5pKQqhjN1Odb6hdUuKNpJGspXrgXw3JVCz3kiRokRgy7rshbIAKLvuK2Xnn9gNR3JfTCI8AwnAcXws/ALBNUaYAAAAAYYeAs9Shob9n0EBUTaZnj-jRHCTZp1vr/", "pos_tid": "6i6tEp46pERGGi6ZbxkyV3", "permissions": null, "transaction_fee": 0, "additional_amount": 0}}';
+    $headers = [
+        'HTTP_AUTHORIZATION' => 'RSA-SHA256 p8bHuIN3I41lof3zEQYlEyGfj0N+uyZW2wY2xR+x7oAbfwZtRjaX8wI3QVaF23wS+d2fgJiJ0ZJqumz0rqwBcGlKy1sqhNGiA1QXfJs0o79vptex/+CGfVm7cdtCPhv2fougwHFGx6uAlYozYUpQGcIPHD4DmRFZpPpOEn7Vc9I=',
+        'HTTP_X_SETTLE_TIMESTAMP' => '2021-11-07 07:21:00',
+        'CONTENT_TYPE' => 'application/vnd.mcash.api.merchant.v1+json',
+        'HTTP_X_SETTLE_CONTENT_DIGEST' => 'SHA256=qnm7VZVajBcZ+p506yfEhm7tC4hTA0q7F5YXyxd1WUA=',
+    ];
+    $callbackUrl = 'https://daniel-zahariev.info/requestbin/settle.php';
+
+    expect($api_client->isValidCallback($callbackUrl, $body, $headers))->toBeTrue();
 });
