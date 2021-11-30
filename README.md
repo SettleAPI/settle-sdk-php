@@ -10,7 +10,7 @@ An easy to use **SDK** for **PHP** with all the best practices to kickstart your
 
 ## Installation
 
-`composer require danielz/settle-sdk-php`
+`composer require settle/settle-sdk-php`
 
 ## Usage
 
