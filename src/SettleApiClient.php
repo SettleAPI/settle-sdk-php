@@ -273,7 +273,7 @@ class SettleApiClient
         return $link;
     }
 
-    protected function createDynamicLink($data)
+    public function createDynamicLink($data)
     {
         $data['environment'] = $this->getIsSandbox() ? 'sandbox' : 'production';
 

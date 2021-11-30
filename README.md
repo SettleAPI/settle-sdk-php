@@ -68,12 +68,6 @@ $merchant_api->payment_requests->getPaymentLink($payment_request_id);
 $merchant_api->payment_requests->getDynamicLink($payment_request_id);
 ```
 
-
-
-
-
-
-
 ### Webhooks / Callbacks
 In order to validate callback requests from Settle, both Apache and nginx servers require manual setup to pass the `Authorization` header to PHP. 
 
@@ -94,5 +88,19 @@ Two methods on the `SettleApiClient` class can be used in relation to the callba
 
 ```php
 // the following will return 
-$settle_client->isValidCallback($callbackUrl, $body, $headers, $method); 
+$is_valid = $settle_client->isValidCallback($callbackUrl, $body, $headers, $method);
+
+// the following method will grab the data Settle sent in the current request
+$settle_data = $settle_client->getCallbackData();  
 ```
+
+### Dynamic links
+Payment requests have a helper method for creating dynamic links but this is only a subset of all the cases when one might need a dynamic link.
+The main method for creating dynamic links can be found in the `SettleApiClient` class:
+
+```php
+$dynamic_link = $settle_client->createDynamicLink([
+    'shortLink' => 'https://settle.eu/s/gSpEb/pos123/'
+]);
+```
+For more options refer to the [documentation](https://support.settle.eu/hc/en-150/articles/4412216178705-Settle-Dynamic-Links) 
