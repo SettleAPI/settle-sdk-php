@@ -1,5 +1,5 @@
 {
-    "name": "danielz/settle-sdk-php",
+    "name": "settle/settle-sdk-php",
     "description": "PHP SDK for connecting to the Settle Payment Platform.",
     "type": "library",
     "license": "apache-2.0",
