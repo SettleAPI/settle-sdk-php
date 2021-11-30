@@ -1,12 +1,8 @@
 <?php
 
-use Danielz\SettleApi\MerchantApi\MerchantApi;
-use Danielz\SettleApi\SettleApiClient;
-use Danielz\SettleApi\SettleApiException;
-
-// Questions:
-// Can we pass `serial_number` when creating shortlinks
-//
+use SettleApi\MerchantApi\MerchantApi;
+use SettleApi\SettleApiClient;
+use SettleApi\SettleApiException;
 
 $api_client = new SettleApiClient(
     SETTLE_MERCHANT_ID,
@@ -79,24 +75,24 @@ test('API: POS', function() {
     }
 });
 
-test('API: Shortlinks', function() {
+test('API: ShortLinks', function() {
     global $merchant_api;
 
-    $shortlinks_api = $merchant_api->shortlinks;
-    $existing_count = count($shortlinks_api->list()['uris']);
+    $short_links_api = $merchant_api->short_links;
+    $existing_count = count($short_links_api->list()['uris']);
 
-    $shortlink = $shortlinks_api->create(['callback_uri' => 'https://example.com']);
-    expect($shortlinks_api->get($shortlink['id'])['id'])->toBe($shortlink['id']);
-    expect(count($shortlinks_api->list()['uris']))->toBe($existing_count + 1);
+    $shortlink = $short_links_api->create(['callback_uri' => 'https://example.com']);
+    expect($short_links_api->get($shortlink['id'])['id'])->toBe($shortlink['id']);
+    expect(count($short_links_api->list()['uris']))->toBe($existing_count + 1);
 
-    expect($shortlinks_api->update($shortlink['id'], ['callback_uri' => 'https://example.com']))->toBeTrue();
+    expect($short_links_api->update($shortlink['id'], ['callback_uri' => 'https://example.com']))->toBeTrue();
 
-    expect($shortlinks_api->delete($shortlink['id']))->toBeTrue();
-    expect(count($shortlinks_api->list()['uris']))->toBe($existing_count);
+    expect($short_links_api->delete($shortlink['id']))->toBeTrue();
+    expect(count($short_links_api->list()['uris']))->toBe($existing_count);
 
 
     try {
-        $shortlinks_api->get($shortlink['id']);
+        $short_links_api->get($shortlink['id']);
         expect(true)->toBeFalse(); // make sure we don't hit this line
     } catch (SettleApiException $e) {
         expect($e->getCode())->toBe(404);
@@ -178,16 +174,10 @@ test('API: Links', function() {
     expect($api_client->createLink('missing'))->toBe(SettleApiClient::SETTLE_LINK);
     expect($api_client->createLink('payment_link'))->toBe(SettleApiClient::PAYMENT_LINK);
 
-    $isSandbox = $api_client->getIsSandbox();
-    $api_client->setIsSandbox(true);
-    expect($api_client->createLink('payment_link_mobile'))->toBe(SettleApiClient::PAYMENT_LINK_MOBILE_SANDBOX);
-    $api_client->setIsSandbox(false);
-    expect($api_client->createLink('payment_link_mobile'))->toBe(SettleApiClient::PAYMENT_LINK_MOBILE);
-    $api_client->setIsSandbox($isSandbox);
-
     $api = $merchant_api->payment_requests;
-    expect($api->getPaymentLink('pcqghkrpztq1'))->toBe('http://settle.eu/p/pcqghkrpztq1/');
-    expect($api->getMobilePaymentLink('pcqghkrpztq1'))->toBe('https://settledemo.page.link/?apn=eu.settle.app.sandbox&ibi=eu.settle.app.sandbox&isi=1453180781&ius=eu.settle.app.firebaselink&link=https://settle-demo://qr/http://settle.eu/p/pcqghkrpztq1/');
+    expect($api->getPaymentLink('pcqghkrpztq1'))->toBe('https://settle.eu/p/pcqghkrpztq1/');
+    $api_client->setIsSandbox(true);
+    expect($api->getDynamicLink('pcqghkrpztq1'))->toBe('https://settledemo.page.link/bqWD');
 });
 
 test('API: Utility', function() {

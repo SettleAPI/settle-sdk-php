@@ -1,13 +1,13 @@
 <?php
 
-namespace Danielz\SettleApi\MerchantApi;
+namespace SettleApi\MerchantApi;
 
-use Danielz\SettleApi\SettleApi;
-use Danielz\SettleApi\SettleApiException;
+use SettleApi\SettleApi;
+use SettleApi\SettleApiException;
 
 /**
  * Class Settlements
- * @package Danielz\SettleApi\MerchantApi
+ * @package SettleApi\MerchantApi
  */
 class Settlements extends SettleApi
 {
@@ -33,6 +33,7 @@ class Settlements extends SettleApi
     /**
      * @return array
      * @throws SettleApiException
+     * @todo This endpoint isn't working properly
      */
     public function latest()
     {
@@ -42,6 +43,7 @@ class Settlements extends SettleApi
     /**
      * @return array
      * @throws SettleApiException
+     * @todo This endpoint isn't working properly
      */
     public function report()
     {

@@ -1,13 +1,14 @@
 <?php
 
-namespace Danielz\SettleApi\MerchantApi;
+namespace SettleApi\MerchantApi;
 
-use Danielz\SettleApi\SettleApi;
-use Danielz\SettleApi\SettleApiException;
+use SettleApi\SettleApi;
+use SettleApi\SettleApiException;
 
 /**
  * Class Balance
- * @package Danielz\SettleApi\MerchantApi
+ * @package SettleApi\MerchantApi
+ * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.balance/
  */
 class Balance extends SettleApi
 {

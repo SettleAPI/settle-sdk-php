@@ -1,15 +1,16 @@
 <?php
 
-namespace Danielz\SettleApi\MerchantApi;
+namespace SettleApi\MerchantApi;
 
-use Danielz\SettleApi\SettleApi;
-use Danielz\SettleApi\SettleApiException;
+use SettleApi\SettleApi;
+use SettleApi\SettleApiException;
 
 /**
- * Class Shortlinks
- * @package Danielz\SettleApi\MerchantApi
+ * Class ShortLinks
+ * @package SettleApi\MerchantApi
+ * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.shortlink/
  */
-class Shortlinks extends SettleApi
+class ShortLinks extends SettleApi
 {
     /**
      * @return array

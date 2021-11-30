@@ -40,7 +40,6 @@ Each resource (class) can be accessed via magic property on the Merchants API ob
 ```php
 $merchant_api->api_keys->...;
 $merchant_api->balance->...;
-$merchant_api->dynamic_links->...;
 $merchant_api->payment_requests->...;
 $merchant_api->payment_sends->...;
 $merchant_api->pos->...;
@@ -66,7 +65,7 @@ Only `PaymentRequests` class has a few extra helper methods:
 $merchant_api->payment_requests->capture($payment_request_id,$currency,$amount)
 $merchant_api->payment_requests->refund($payment_request_id, $currency, $amount);
 $merchant_api->payment_requests->getPaymentLink($payment_request_id);
-$merchant_api->payment_requests->getMobilePaymentLink($payment_request_id);
+$merchant_api->payment_requests->getDynamicLink($payment_request_id);
 ```
 
 
@@ -89,4 +88,11 @@ Here's an example for nginx:
 ```
 proxy_set_header Authorization $http_authorization;
 proxy_pass_header  Authorization;
+```
+
+Two methods on the `SettleApiClient` class can be used in relation to the callbacks:
+
+```php
+// the following will return 
+$settle_client->isValidCallback($callbackUrl, $body, $headers, $method); 
 ```

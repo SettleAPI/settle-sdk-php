@@ -1,7 +1,12 @@
 <?php
 
-namespace Danielz\SettleApi;
+namespace SettleApi;
 
+/**
+ * Class SettleApiClient
+ * @package SettleApi
+ * @link https://api.support.settle.eu/api/reference/rest/v1/
+ */
 class SettleApiClient
 {
     protected string $merchantId;
@@ -12,14 +17,16 @@ class SettleApiClient
 
     const BASE_URL_PRODUCTION = 'https://api.settle.eu/merchant/v1/';
     const BASE_URL_SANDBOX = 'https://api.sandbox.settle.eu/merchant/v1/';
+    const BASE_URL_DYNAMICLINKS = 'https://dynamiclinks.settle.dev/api/create';
 
     const PUBLIC_KEY_PRODUCTION = "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9iglTBPG1poCw3qFPlxT0MSHO\nt6kgRmpVrLBY9Fx8Zn+zAoY89ZeFhwwnRR8IDQcj4yEAjsoXCxtH3bbh/OdvlFG6\nxdSsAeph6/MSk9YAVKWRWU5ber9cgoQ89KJ14goLUnhhegynUjnz+hdgAET5k9Uc\nsxnmfU7XeT78FP02JQIDAQAB\n-----END PUBLIC KEY-----";
     const PUBLIC_KEY_SANDBOX = "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDS92fCQmAPDpmcgraqPRXgz4Nd\nd/biPxIH5aG1dAQ8dMMcEjGCn7Sm5VcX1iV8L5oW+MlcnHFaZdVyy1Lcqed/8+r0\nQM9cFqQWif35C+eOr/s7/CCY/WXMApqO6YihtHvP+jgjrXltw0LHrUwMWO718udN\nhlg22QkpjhG90kvf3QIDAQAB\n-----END PUBLIC KEY-----";
 
+    const LINK_TEMPLATE_PAYMENT = 'payment_link';
+    const LINK_TEMPLATE_DYNAMIC = 'dynamic_link';
+
     const SETTLE_LINK = 'https://settle.eu';
-    const PAYMENT_LINK = 'http://settle.eu/p/:payment_request_id/';
-    const PAYMENT_LINK_MOBILE = 'http://settle.eu/p/:payment_request_id/';
-    const PAYMENT_LINK_MOBILE_SANDBOX = 'https://settledemo.page.link/?apn=eu.settle.app.sandbox&ibi=eu.settle.app.sandbox&isi=1453180781&ius=eu.settle.app.firebaselink&link=https://settle-demo://qr/http://settle.eu/p/:payment_request_id/';
+    const PAYMENT_LINK = 'https://settle.eu/p/:payment_request_id/';
 
     /**
      * SettleApi constructor.
@@ -73,7 +80,7 @@ class SettleApiClient
     {
         $method = strtoupper($method);
         $path = ltrim($path, '/');
-        $url = $this->getBaseUrl() . $path;
+        $url = $this->getApiBaseUrl() . $path;
 
         $headers = $this->getHeaders($method, $url, $postFields);
 
@@ -91,7 +98,6 @@ class SettleApiClient
 
         $ch = curl_init();
         curl_setopt_array($ch, $curl_options);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $response_body = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -117,7 +123,7 @@ class SettleApiClient
     /**
      * @return string
      */
-    public function getBaseUrl(): string
+    public function getApiBaseUrl(): string
     {
         return $this->isSandbox ? self::BASE_URL_SANDBOX : self::BASE_URL_PRODUCTION;
     }
@@ -134,8 +140,10 @@ class SettleApiClient
         $content_digest = base64_encode(hash('sha256', $content, true));
 
         $headers = [
+            'User-Agent: SettleApi PHP Client',
             'Accept: application/vnd.mcash.api.merchant.v1+json',
             'Content-Type: application/json',
+            'Content-Length: ' . strlen($content),
         ];
 
         $settle_headers = [
@@ -161,6 +169,9 @@ class SettleApiClient
 
 
     /**
+     * Verify that the current request to PHP is sent from Settle
+     * and if yes, get the data sent by Settle
+     *
      * @param string $callbackUrl
      * @param string $method
      * @return false|mixed
@@ -179,6 +190,10 @@ class SettleApiClient
     }
 
     /**
+     * Verify that the callback is indeed sent from Settle
+     * The verification depends on the 'Authorization' and custom Settle headers
+     * See README for more details
+     *
      * @param string $callbackUrl
      * @param string|array $body
      * @param array $headers
@@ -227,17 +242,21 @@ class SettleApiClient
         return ($expected_content_digest == $content_digest) && $valid_signature;
     }
 
-    public function createLink($template, array $data = [])
+    /**
+     * @param string $template
+     * @param array $data
+     * @param array $extraData
+     * @return array|string|string[]
+     */
+    public function createLink($template, array $data = [], array $extraData = [])
     {
         switch($template) {
             default:
                 $link = self::SETTLE_LINK;
                 break;
-            case 'payment_link':
+            case self::LINK_TEMPLATE_DYNAMIC:
+            case self::LINK_TEMPLATE_PAYMENT:
                 $link = self::PAYMENT_LINK;
-                break;
-            case 'payment_link_mobile':
-                $link = $this->isSandbox ? self::PAYMENT_LINK_MOBILE_SANDBOX : self::PAYMENT_LINK_MOBILE;
                 break;
         }
 
@@ -245,6 +264,48 @@ class SettleApiClient
             $link = str_replace(":{$param}", $value, $link);
         }
 
+        if ($template == self::LINK_TEMPLATE_DYNAMIC) {
+            $extraData['shortLink'] = $link;
+            $dynamic_link = $this->createDynamicLink($extraData);
+            if ($dynamic_link) $link = $dynamic_link;
+        }
+
         return $link;
+    }
+
+    protected function createDynamicLink($data)
+    {
+        $data['environment'] = $this->getIsSandbox() ? 'sandbox' : 'production';
+
+        $post_data = json_encode($data);
+        $headers = [
+            'User-Agent: SettleApi PHP Client',
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($post_data),
+            'Accept: application/json',
+        ];
+
+        $curl_options = [
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_URL => self::BASE_URL_DYNAMICLINKS,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $post_data,
+        ];
+
+        $ch = curl_init();
+        curl_setopt_array($ch, $curl_options);
+
+        $response_body = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $response = @json_decode($response_body, true);
+        curl_close($ch);
+
+        if ($response_body !== false && $httpCode == 201) {
+            return $response['data']['shortDynamicLink'];
+        }
+
+        return null;
     }
 }

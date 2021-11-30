@@ -1,8 +1,8 @@
 <?php
 
-use Danielz\SettleApi\SettleApiClient;
-use Danielz\SettleApi\MerchantApi\ApiKeys;
-use Danielz\SettleApi\MerchantApi\MerchantApi;
+use SettleApi\SettleApiClient;
+use SettleApi\MerchantApi\ApiKeys;
+use SettleApi\MerchantApi\MerchantApi;
 
 test('Magic property classes', function () {
     $merchant_api = new MerchantApi(new SettleApiClient('', '', '', '', true));

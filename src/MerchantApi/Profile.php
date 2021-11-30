@@ -1,13 +1,14 @@
 <?php
 
-namespace Danielz\SettleApi\MerchantApi;
+namespace SettleApi\MerchantApi;
 
-use Danielz\SettleApi\SettleApi;
-use Danielz\SettleApi\SettleApiException;
+use SettleApi\SettleApi;
+use SettleApi\SettleApiException;
 
 /**
  * Class Profile
- * @package Danielz\SettleApi\MerchantApi
+ * @package SettleApi\MerchantApi
+ * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.profile/
  */
 class Profile extends SettleApi
 {

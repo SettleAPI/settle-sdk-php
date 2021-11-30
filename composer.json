@@ -17,13 +17,13 @@
         "ext-openssl": "*"
     },
     "require-dev": {
-        "pestphp/pest": "^1.20",
-        "php-coveralls/php-coveralls": "^2.4",
-        "vlucas/phpdotenv": "^5.3"
+        "pestphp/pest": "^1.21",
+        "php-coveralls/php-coveralls": "^2.5",
+        "vlucas/phpdotenv": "^5.4"
     },
     "autoload": {
         "psr-4": {
-            "Danielz\\SettleApi\\": "src/"
+            "SettleApi\\": "src/"
         }
     },
     "scripts": {

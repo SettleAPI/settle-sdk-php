@@ -1,13 +1,15 @@
 <?php
 
-namespace Danielz\SettleApi\MerchantApi;
+namespace SettleApi\MerchantApi;
 
-use Danielz\SettleApi\SettleApi;
-use Danielz\SettleApi\SettleApiException;
+use SettleApi\SettleApi;
+use SettleApi\SettleApiClient;
+use SettleApi\SettleApiException;
 
 /**
  * Class PaymentRequests
- * @package Danielz\SettleApi\MerchantApi
+ * @package SettleApi\MerchantApi
+ * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.payment.request/
  */
 class PaymentRequests extends SettleApi
 {
@@ -66,16 +68,22 @@ class PaymentRequests extends SettleApi
      * @param string $currency
      * @param float|int $amount
      * @param float|int $additional_amount
+     * @param string $capture_id
      * @return array
+     * @throws SettleApiException
      */
-    public function capture($payment_request_id, $currency, $amount, $additional_amount = 0)
+    public function capture($payment_request_id, $currency, $amount, $additional_amount = 0, $capture_id = '')
     {
+        if (empty($capture_id)) {
+            $capture_id = 'cap_' . date('YmdHis');
+        }
+
         $data = [
             'action' => 'capture',
             'currency' => $currency,
             'amount' => $amount,
             'additional_amount' => $additional_amount,
-            'capture_id' => 'cap_' . date('YmdHis'),
+            'capture_id' => $capture_id,
         ];
 
         return $this->update($payment_request_id, $data);
@@ -87,16 +95,22 @@ class PaymentRequests extends SettleApi
      * @param float $amount
      * @param float|int $additional_amount
      * @param string $message
+     * @param string $refund_id
      * @return array
+     * @throws SettleApiException
      */
-    public function refund($payment_request_id, $currency, $amount, $additional_amount = 0, $message = '')
+    public function refund($payment_request_id, $currency, $amount, $additional_amount = 0, $message = '', $refund_id = '')
     {
+        if (empty($refund_id)) {
+            $refund_id = 'ref_' . date('YmdHis');
+        }
+
         $data = [
             'action' => 'refund',
             'currency' => $currency,
             'amount' => $amount,
             'additional_amount' => $additional_amount,
-            'refund_id' => 'ref_' . date('YmdHis'),
+            'refund_id' => $refund_id,
             'text' => $message,
         ];
 
@@ -109,15 +123,16 @@ class PaymentRequests extends SettleApi
      */
     public function getPaymentLink($payment_request_id)
     {
-        return $this->createLink('payment_link', compact('payment_request_id'));
+        return $this->createLink(SettleApiClient::LINK_TEMPLATE_PAYMENT, compact('payment_request_id'));
     }
 
     /**
      * @param string $payment_request_id
+     * @param array $socialData
      * @return string
      */
-    public function getMobilePaymentLink($payment_request_id)
+    public function getDynamicLink($payment_request_id, $socialData = [])
     {
-        return $this->createLink('payment_link_mobile', compact('payment_request_id'));
+        return $this->createLink(SettleApiClient::LINK_TEMPLATE_DYNAMIC, compact('payment_request_id'), $socialData);
     }
 }

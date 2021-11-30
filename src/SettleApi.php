@@ -1,10 +1,10 @@
 <?php
 
-namespace Danielz\SettleApi;
+namespace SettleApi;
 
 /**
  * Class SettleApi
- * @package Danielz
+ * @package SettleApi
  */
 abstract class SettleApi
 {
@@ -30,6 +30,14 @@ abstract class SettleApi
     final protected function call(string $method, string $path, array $data = [])
     {
         return $this->api_client->call($method, $path, $data);
+    }
+
+    /**
+     * @return bool
+     */
+    final protected function isSandbox()
+    {
+        return $this->api_client->getIsSandbox();
     }
 
     /**
@@ -62,8 +70,8 @@ abstract class SettleApi
     /**
      * @return string
      */
-    protected function createLink($template, array $data = [])
+    protected function createLink($template, array $data = [], array $extraData = [])
     {
-        return $this->api_client->createLink($template, $data);
+        return $this->api_client->createLink($template, $data, $extraData);
     }
 }
