@@ -13,5 +13,6 @@ install:
 
 script:
   - vendor/bin/pest
-  - vendor/bin/php-coveralls --coverage_clover=coverage/logs/clover.xml --json_path=coverage/logs/coveralls-upload.json -v
 
+after_success:
+  - vendor/bin/php-coveralls --coverage_clover=coverage/logs/clover.xml --json_path=coverage/logs/coveralls-upload.json -v
