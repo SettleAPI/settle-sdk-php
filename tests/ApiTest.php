@@ -121,6 +121,42 @@ test('API: Payment Requests', function() {
     $request = $payment_requests_api->get('pcqghkrpztq1');
     expect(isset($request['id']))->toBeTrue();
     expect($request['id'])->toBe('pcqghkrpztq1');
+
+    $request_data = [
+        'action' => 'sale',
+        'additional_edit' => false,
+        'allow_credit' => true,
+        'amount' => 100,
+        'currency' => 'BGN',
+        'max_scan_age' => 600,
+        'pos_id' => '7DROG',
+        'pos_tid' => date('YmdHis'),
+    ];
+    $request = $merchant_api->payment_requests->create($request_data);
+
+    $outcome = $merchant_api->payment_requests->outcome($request['id']);
+    expect($outcome['status'])->toBe('pending');
+    expect($outcome['amount'])->toBe($request_data['amount']);
+
+    try {
+        $merchant_api->payment_requests->capture($request['id'], $request_data['currency'], $request_data['amount']);
+        expect(true)->toBeFalse(); // make sure we don't hit this line
+    } catch (SettleApiException $e) {
+        expect($e->getCode())->toBe(409);
+        expect($e->getMessage())->toContain("Tried to capture payment before customer authorized payment or after authorization has expired");
+    }
+
+    try {
+        $merchant_api->payment_requests->refund($request['id'], $request_data['currency'], $request_data['amount']);
+        expect(true)->toBeFalse(); // make sure we don't hit this line
+    } catch (SettleApiException $e) {
+        expect($e->getCode())->toBe(400);
+        expect($e->getMessage())->toContain("The requested amount for refund is larger than the captured amount");
+    }
+
+    $merchant_api->payment_requests->update($request['id'], ['action' => 'abort']);
+    $outcome = $merchant_api->payment_requests->outcome($request['id']);
+    expect($outcome['status'])->toBe('fail');
 });
 
 test('API [not working]: Settlements', function() {
