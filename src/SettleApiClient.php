@@ -2,6 +2,9 @@
 
 namespace SettleApi;
 
+use DateTime;
+use DateTimeZone;
+
 /**
  * Class SettleApiClient
  * @package SettleApi
@@ -14,6 +17,7 @@ class SettleApiClient
     protected string $publicKey;
     protected string $privateKey;
     protected bool $isSandbox;
+    protected bool $validateShapes = true;
 
     const BASE_URL_PRODUCTION = 'https://api.settle.eu/merchant/v1/';
     const BASE_URL_SANDBOX = 'https://api.sandbox.settle.eu/merchant/v1/';
@@ -70,14 +74,36 @@ class SettleApiClient
     }
 
     /**
+     * @return bool
+     */
+    public function getValidateShapes()
+    {
+        return $this->validateShapes;
+    }
+
+    /**
+     * @param $validateShapes
+     */
+    public function setValidateShapes($validateShapes)
+    {
+        $this->validateShapes = $validateShapes;
+    }
+
+    /**
      * @param string $method
      * @param string $path
      * @param array $postFields
+     * @param array $shape
      * @return array|bool
      * @throws SettleApiException
      */
-    public function call(string $method, string $path, array $postFields = [])
+    public function call(string $method, string $path, array $postFields = [], $shape = [])
     {
+        if ($this->validateShapes && !empty($shape)) {
+            $validator = new ShapeValidator($shape, $postFields);
+            $validator->validate();
+        }
+
         $method = strtoupper($method);
         $path = ltrim($path, '/');
         $url = $this->getApiBaseUrl() . $path;
@@ -111,12 +137,17 @@ class SettleApiClient
             case $httpCode >= 200 && $httpCode < 300:
                 return $response;
 
+            case $httpCode == 404:
+                throw new SettleApiException("The resource could not be found.", $httpCode);
+
             default:
                 if ($response !== null) {
                     $message = $response['error_description'] ?? $response['error_detail'] ?? $response['error_type'] ?? 'Something went wrong.';
                     throw new SettleApiException($message, $httpCode);
                 }
-                throw new SettleApiException('Something went wrong.', $httpCode);
+
+                $errorMessage = !empty($response_body) ? $response_body : 'Something went wrong.';
+                throw new SettleApiException($errorMessage, $httpCode);
         }
     }
 
@@ -146,10 +177,11 @@ class SettleApiClient
             'Content-Length: ' . strlen($content),
         ];
 
+        $date = (new DateTime())->setTimezone(new DateTimeZone('UTC'));
         $settle_headers = [
             'x-settle-merchant' => $this->merchantId,
             'x-settle-user' => $this->userId,
-            'x-settle-timestamp' => date('Y-m-d H:i:s'),
+            'x-settle-timestamp' => $date->format('Y-m-d H:i:s'),
             'x-settle-content-digest' => 'SHA256=' . $content_digest,
         ];
 

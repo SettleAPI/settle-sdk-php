@@ -24,12 +24,13 @@ abstract class SettleApi
      * @param string $method
      * @param string $path
      * @param array $data
+     * @param array $shape
      * @return array
      * @throws SettleApiException
      */
-    final protected function call(string $method, string $path, array $data = [])
+    final protected function call(string $method, string $path, array $data = [], $shape = [])
     {
-        return $this->api_client->call($method, $path, $data);
+        return $this->api_client->call($method, $path, $data, $shape);
     }
 
     /**

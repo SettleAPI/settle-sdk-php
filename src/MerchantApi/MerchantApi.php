@@ -17,6 +17,7 @@ use SettleApi\SettleApi;
  * @property Balance balance
  * @property Profile profile
  * @property StatusCodes status_codes
+ * @property PermissionRequests permission_requests
  */
 class MerchantApi extends SettleApi
 {
@@ -35,6 +36,7 @@ class MerchantApi extends SettleApi
             'settlements' => Settlements::class,
             'short_links' => ShortLinks::class,
             'status_codes' => StatusCodes::class,
+            'permission_requests' => PermissionRequests::class,
         ];
     }
 }
