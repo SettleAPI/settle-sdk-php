@@ -30,7 +30,7 @@ class SettleApiClient
     const LINK_TEMPLATE_DYNAMIC = 'dynamic_link';
 
     const SETTLE_LINK = 'https://settle.eu';
-    const PAYMENT_LINK = 'https://settle.eu/p/:payment_request_id/';
+    const PAYMENT_LINK = 'http://settle.eu/p/:payment_request_id/';
 
     /**
      * SettleApi constructor.
