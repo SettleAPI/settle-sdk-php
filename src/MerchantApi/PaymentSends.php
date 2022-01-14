@@ -23,7 +23,7 @@ class PaymentSends extends SettleApi
     }
 
     /**
-     * @param $payment_send_id
+     * @param string $payment_send_id
      * @return array
      * @throws SettleApiException
      */
