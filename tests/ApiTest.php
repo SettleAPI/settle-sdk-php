@@ -13,6 +13,17 @@ $api_client = new SettleApiClient(
 );
 $merchant_api = new MerchantApi($api_client);
 
+//test('Invalid endpoint', function() {
+//    global $api_client;
+//    try {
+//        $api_client->call('GET', '/invalid', ['some' => 'data']);
+//        expect(true)->toBeFalse(); // make sure we don't hit this line
+//    } catch (SettleApiException $e) {
+//        expect($e->getCode())->toBe(404);
+//        expect($e->getMessage())->toBe("The resource could not be found.");
+//    }
+//});
+
 test('API: Api Keys', function() {
     global $merchant_api;
 
@@ -159,6 +170,16 @@ test('API: Payment Requests', function() {
     expect($outcome['status'])->toBe('fail');
 });
 
+test('Permission Requests', function() {
+    global $merchant_api;
+
+    $request = $merchant_api->permission_requests->get('e5t4uwmmxz2rygtvwcse382xt3ddv4zd');
+    expect($request['customer'])->toBe('token:5647354929610752');
+
+    $request = $merchant_api->permission_requests->outcome('e5t4uwmmxz2rygtvwcse382xt3ddv4zd');
+    expect($request['status'])->toBe('ok');
+});
+
 test('API [not working]: Settlements', function() {
     global $merchant_api;
 
@@ -206,23 +227,33 @@ test('API: Profile, Balance, StatusCodes', function() {
 
 test('API: Links', function() {
     global $api_client, $merchant_api;
+    $deepLinkBase = 'https://settledemo.page.link?apn=eu.settle.app.sandbox&ibi=eu.settle.app.sandbox&isi=1453180781&ius=eu.settle.app.firebaselink&link=https%3A%2F%2Fsettle-demo%3A%2F%2Fqr%2F';
     $api_client->setIsSandbox(true);
+    $requests_api = $merchant_api->payment_requests;
+    $short_links_api = $merchant_api->short_links;
 
     // Global
-    expect($api_client->createLink('missing'))->toBe(SettleApiClient::SETTLE_LINK);
-    expect($api_client->createLink(SettleApiClient::LINK_TEMPLATE_PAYMENT))->toBe(SettleApiClient::PAYMENT_LINK);
-    expect($api_client->createLink(SettleApiClient::LINK_TEMPLATE_SHORT_LINK))->toBe(SettleApiClient::SHORT_LINK_LINK);
+    expect($api_client->getLink('missing'))->toBe(SettleApiClient::SETTLE_LINK);
+    expect($api_client->getLink(SettleApiClient::LINK_TEMPLATE_PAYMENT))->toBe(SettleApiClient::PAYMENT_LINK);
+    expect($api_client->getLink(SettleApiClient::LINK_TEMPLATE_SHORT_LINK))->toBe(SettleApiClient::SHORT_LINK_LINK);
 
-    // Payment Requests
-    $api = $merchant_api->payment_requests;
-    expect($api->getLink('pcqghkrpztq1'))->toBe('http://settle.eu/p/pcqghkrpztq1/');
-    expect($api->getLink('pcqghkrpztq1', ['a' => 'b', 'c' => 1]))->toBe('http://settle.eu/p/pcqghkrpztq1/a=b&c=1');
+    // Payment Request Link
+    $payment_request_link = 'http://settle.eu/p/pcqghkrpztq1/';
+    expect($requests_api->getLink('pcqghkrpztq1'))->toBe($payment_request_link);
 
-    // Deep links
-    $deepLink = 'https://settledemo.page.link?apn=eu.settle.app.sandbox&ibi=eu.settle.app.sandbox&isi=1453180781&ius=eu.settle.app.firebaselink&link=https%3A%2F%2Fsettle-demo%3A%2F%2Fqr%2Fhttp%3A%2F%2Fsettle.eu%2Fp%2Fpypz44mcswz3%2F';
-    expect($api->getDeepLink('pypz44mcswz3'))->toBe($deepLink);
-    expect($api_client->getDeepLink('http://settle.eu/p/pypz44mcswz3/'))->toBe($deepLink);
+    $extra_data = ['a' => 'b', 'c' => 1];
+    expect($requests_api->getLink('pcqghkrpztq1', $extra_data))
+        ->toBe($payment_request_link . http_build_query($extra_data));
 
+    // Payment Request Deep link
+    $deepLink = $deepLinkBase . urlencode($payment_request_link);
+    expect($requests_api->getDeepLink('pcqghkrpztq1'))->toBe($deepLink);
+    expect($api_client->getDeepLink($payment_request_link))->toBe($deepLink);
+
+    // Short Links
+    $short_link = 'http://settle.eu/s/N4JEV/';
+    expect($short_links_api->getLink('N4JEV'))->toBe($short_link);
+    expect($short_links_api->getDeepLink('N4JEV'))->toBe($deepLinkBase . urlencode($short_link));
 });
 
 test('API: Utility', function() {

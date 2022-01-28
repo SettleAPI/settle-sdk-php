@@ -2,6 +2,7 @@
 
 namespace SettleApi;
 
+use DanielZ\ShapeValidator\ShapeException;
 use DanielZ\ShapeValidator\ShapeValidator;
 use DateTime;
 use DateTimeZone;
@@ -120,8 +121,12 @@ class SettleApiClient
     public function call(string $method, string $path, array $data = [], $shape = [])
     {
         if ($this->validateShapes && !empty($shape)) {
-            $validator = new ShapeValidator($shape);
-            $validator->validate($data);
+            try {
+                $validator = new ShapeValidator($shape);
+                $validator->validate($data);
+            } catch (ShapeException $e) {
+                throw new SettleApiException($e->getMessage(), $e->getCode(), $e, $e->getValidationErrors());
+            }
         }
 
         $curl_options = [
@@ -295,18 +300,6 @@ class SettleApiClient
         $valid_signature = openssl_verify($fingerprint, $expected_signature, $this->getSettlePublicKey(), OPENSSL_ALGO_SHA256);
 
         return ($expected_content_digest == $content_digest) && $valid_signature;
-    }
-
-    /**
-     * @param string $template
-     * @param array $data
-     * @param array $extraData
-     * @return string
-     * @deprecated
-     */
-    public function createLink($template, array $data = [], array $extraData = [])
-    {
-        return $this->getLink($template, $data, $extraData);
     }
 
     /**

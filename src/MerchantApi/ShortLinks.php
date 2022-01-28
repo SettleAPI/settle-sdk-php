@@ -70,6 +70,16 @@ class ShortLinks extends SettleApi
      */
     public function getLink($short_link_id, $extraData = [])
     {
-        return parent::createLink(SettleApiClient::LINK_TEMPLATE_SHORT_LINK, compact('short_link_id'), $extraData);
+        return $this->createLink(SettleApiClient::LINK_TEMPLATE_SHORT_LINK, compact('short_link_id'), $extraData);
+    }
+
+    /**
+     * @param string $short_link_id
+     * @param array $extraData
+     * @return string
+     */
+    public function getDeepLink($short_link_id, $extraData = [])
+    {
+        return $this->createDeepLink($this->getLink($short_link_id, $extraData));
     }
 }

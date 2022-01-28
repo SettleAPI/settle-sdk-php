@@ -36,7 +36,7 @@ abstract class SettleApi
     /**
      * @return bool
      */
-    final protected function isSandbox()
+    final public function isSandbox()
     {
         return $this->api_client->getIsSandbox();
     }
