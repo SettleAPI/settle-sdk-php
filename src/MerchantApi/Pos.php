@@ -8,7 +8,7 @@ use SettleApi\SettleApiException;
 /**
  * Class Pos
  * @package SettleApi\MerchantApi
- * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.pos/
+ * @link https://settleapi.stoplight.io/docs/settleapis/b3A6MTUzOTU0MTY-merchant-pos-list
  */
 class Pos extends SettleApi
 {

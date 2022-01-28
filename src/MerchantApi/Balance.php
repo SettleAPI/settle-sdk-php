@@ -8,7 +8,7 @@ use SettleApi\SettleApiException;
 /**
  * Class Balance
  * @package SettleApi\MerchantApi
- * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.balance/
+ * @link https://settleapi.stoplight.io/docs/settleapis/b3A6MTUzOTU0NDE-merchant-balance-get
  */
 class Balance extends SettleApi
 {

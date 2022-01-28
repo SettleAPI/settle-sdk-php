@@ -8,6 +8,7 @@ use SettleApi\SettleApiException;
 /**
  * Class Settlements
  * @package SettleApi\MerchantApi
+ * @link https://settleapi.stoplight.io/docs/settleapis/b3A6MTUzOTU0MjM-merchant-settlement-list
  */
 class Settlements extends SettleApi
 {

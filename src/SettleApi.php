@@ -69,10 +69,22 @@ abstract class SettleApi
     }
 
     /**
+     * @param string $template
+     * @param array $data
+     * @param array $extraData
      * @return string
      */
     protected function createLink($template, array $data = [], array $extraData = [])
     {
-        return $this->api_client->createLink($template, $data, $extraData);
+        return $this->api_client->getLink($template, $data, $extraData);
+    }
+
+    /**
+     * @param string $short_link
+     * @return string
+     */
+    protected function createDeepLink($short_link)
+    {
+        return $this->api_client->getDeepLink($short_link);
     }
 }

@@ -8,7 +8,7 @@ use SettleApi\SettleApiException;
 /**
  * Class ApiKeys
  * @package SettleApi\MerchantApi
- * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.apiKeys/
+ * @link https://settleapi.stoplight.io/docs/settleapis/b3A6MTUzOTU0MDg-merchant-api-keys-list
  */
 class ApiKeys extends SettleApi
 {

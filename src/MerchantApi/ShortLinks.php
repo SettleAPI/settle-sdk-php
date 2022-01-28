@@ -3,12 +3,13 @@
 namespace SettleApi\MerchantApi;
 
 use SettleApi\SettleApi;
+use SettleApi\SettleApiClient;
 use SettleApi\SettleApiException;
 
 /**
  * Class ShortLinks
  * @package SettleApi\MerchantApi
- * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.shortlink/
+ * @link https://settleapi.stoplight.io/docs/settleapis/b3A6MTUzOTU0Mjg-merchant-shortlink-list
  */
 class ShortLinks extends SettleApi
 {
@@ -22,13 +23,13 @@ class ShortLinks extends SettleApi
     }
 
     /**
-     * @param string $shortlink_id
+     * @param string $short_link_id
      * @return array
      * @throws SettleApiException
      */
-    public function get($shortlink_id)
+    public function get($short_link_id)
     {
-        return $this->call('GET', "shortlink/{$shortlink_id}/");
+        return $this->call('GET', "shortlink/{$short_link_id}/");
     }
 
     /**
@@ -42,23 +43,33 @@ class ShortLinks extends SettleApi
     }
 
     /**
-     * @param string $shortlink_id
+     * @param string $short_link_id
      * @param array $data
      * @return array
      * @throws SettleApiException
      */
-    public function update($shortlink_id, array $data)
+    public function update($short_link_id, array $data)
     {
-        return $this->call('PUT', "shortlink/{$shortlink_id}/", $data);
+        return $this->call('PUT', "shortlink/{$short_link_id}/", $data);
     }
 
     /**
-     * @param string $shortlink_id
+     * @param string $short_link_id
      * @return array
      * @throws SettleApiException
      */
-    public function delete($shortlink_id)
+    public function delete($short_link_id)
     {
-        return $this->call('DELETE', "shortlink/{$shortlink_id}/");
+        return $this->call('DELETE', "shortlink/{$short_link_id}/");
+    }
+
+    /**
+     * @param string $short_link_id
+     * @param array $extraData
+     * @return string
+     */
+    public function getLink($short_link_id, $extraData = [])
+    {
+        return parent::createLink(SettleApiClient::LINK_TEMPLATE_SHORT_LINK, compact('short_link_id'), $extraData);
     }
 }

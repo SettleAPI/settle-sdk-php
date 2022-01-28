@@ -8,7 +8,7 @@ use SettleApi\SettleApiException;
 /**
  * Class PermissionRequests
  * @package SettleApi\MerchantApi
- * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.permissions.request/
+ * @link https://settleapi.stoplight.io/docs/settleapis/b3A6Mjk5NjUxNjA-merchant-permissions-request-get
  */
 class PermissionRequests extends SettleApi
 {

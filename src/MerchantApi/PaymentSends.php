@@ -8,7 +8,7 @@ use SettleApi\SettleApiException;
 /**
  * Class PaymentSends
  * @package SettleApi\MerchantApi
- * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.payment.send/
+ * @link https://settleapi.stoplight.io/docs/settleapis/b3A6MTUzOTU0Mzc-merchant-payment-send-create
  */
 class PaymentSends extends SettleApi
 {

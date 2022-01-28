@@ -9,17 +9,44 @@ use SettleApi\SettleApiException;
 /**
  * Class PaymentRequests
  * @package SettleApi\MerchantApi
- * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.payment.request/
+ * @link https://settleapi.stoplight.io/docs/settleapis/b3A6MTUzOTU0MTE-merchant-payment-request-list
  */
 class PaymentRequests extends SettleApi
 {
+    const REQUEST_SHAPE = [
+        'customer' => 'string',
+        'action' => 'required|string',
+        'currency' => 'string',
+        'amount' => 'numeric',
+        'pos_id' => 'string',
+        'pos_tid' => 'string',
+        'additional_amount' => 'numeric',
+        'additional_edit' => 'bool',
+        'allow_credit' => 'bool',
+        'required_scope' => 'string',
+        'required_scope_text' => 'string',
+        'uri' => 'string',
+        'scope' => 'string',
+        'callback_uri' => 'string',
+        'success_return_uri' => 'string',
+        'failure_return_uri' => 'string',
+        'display_message_uri' => 'string',
+        'expires_in' => 'numeric',
+        'max_scan_age' => 'numeric',
+        'text' => 'string',
+        'refund_id' => 'string',
+        'capture_id' => 'string',
+        'line_items' => 'any',
+        'links' => 'any',
+    ];
+
     /**
      * @return array
      * @throws SettleApiException
      */
-    public function list()
+    public function list($query = [])
     {
-        return $this->call('GET', 'payment_request/');
+        return $this->call('GET', 'payment_request/', $query);
     }
 
     /**
@@ -39,7 +66,7 @@ class PaymentRequests extends SettleApi
      */
     public function create(array $data)
     {
-        return $this->call('POST', 'payment_request/', $data);
+        return $this->call('POST', 'payment_request/', $data, self::REQUEST_SHAPE);
     }
 
     /**
@@ -50,7 +77,9 @@ class PaymentRequests extends SettleApi
      */
     public function update($payment_request_id, array $data)
     {
-        return $this->call('PUT', "payment_request/{$payment_request_id}/", $data);
+        $path = "payment_request/{$payment_request_id}/";
+
+        return $this->call('PUT', $path, $data, self::REQUEST_SHAPE);
     }
 
     /**
@@ -119,20 +148,21 @@ class PaymentRequests extends SettleApi
 
     /**
      * @param string $payment_request_id
+     * @param array $extraData
      * @return string
      */
-    public function getPaymentLink($payment_request_id)
+    public function getLink($payment_request_id, $extraData = [])
     {
-        return $this->createLink(SettleApiClient::LINK_TEMPLATE_PAYMENT, compact('payment_request_id'));
+        return $this->createLink(SettleApiClient::LINK_TEMPLATE_PAYMENT, compact('payment_request_id'), $extraData);
     }
 
     /**
      * @param string $payment_request_id
-     * @param array $socialData
+     * @param array $extraData
      * @return string
      */
-    public function getDynamicLink($payment_request_id, $socialData = [])
+    public function getDeepLink($payment_request_id, $extraData = [])
     {
-        return $this->createLink(SettleApiClient::LINK_TEMPLATE_DYNAMIC, compact('payment_request_id'), $socialData);
+        return $this->createDeepLink($this->getLink($payment_request_id, $extraData));
     }
 }

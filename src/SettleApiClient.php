@@ -2,6 +2,7 @@
 
 namespace SettleApi;
 
+use DanielZ\ShapeValidator\ShapeValidator;
 use DateTime;
 use DateTimeZone;
 
@@ -27,10 +28,29 @@ class SettleApiClient
     const PUBLIC_KEY_SANDBOX = "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDS92fCQmAPDpmcgraqPRXgz4Nd\nd/biPxIH5aG1dAQ8dMMcEjGCn7Sm5VcX1iV8L5oW+MlcnHFaZdVyy1Lcqed/8+r0\nQM9cFqQWif35C+eOr/s7/CCY/WXMApqO6YihtHvP+jgjrXltw0LHrUwMWO718udN\nhlg22QkpjhG90kvf3QIDAQAB\n-----END PUBLIC KEY-----";
 
     const LINK_TEMPLATE_PAYMENT = 'payment_link';
-    const LINK_TEMPLATE_DYNAMIC = 'dynamic_link';
+    const LINK_TEMPLATE_SHORT_LINK = 'short_link_link';
 
     const SETTLE_LINK = 'https://settle.eu';
     const PAYMENT_LINK = 'http://settle.eu/p/:payment_request_id/';
+    const SHORT_LINK_LINK = 'http://settle.eu/s/:short_link_id/';
+
+    const DEEP_LINK_CONFIG_PRODUCTION = [
+        'env' => 'settle',
+        'baseUrl' => 'get.settle.eu',
+        'apn' => 'eu.settle.app',
+        'ibi' => 'eu.settle.app',
+        'isi' => '1440051902',
+        'ius' => 'eu.settle.app.firebaselink',
+    ];
+
+    const DEEP_LINK_CONFIG_SANDBOX = [
+        'env' => 'settle-demo',
+        'baseUrl' => 'settledemo.page.link',
+        'apn' => 'eu.settle.app.sandbox',
+        'ibi' => 'eu.settle.app.sandbox',
+        'isi' => '1453180781',
+        'ius' => 'eu.settle.app.firebaselink',
+    ];
 
     /**
      * SettleApi constructor.
@@ -92,35 +112,37 @@ class SettleApiClient
     /**
      * @param string $method
      * @param string $path
-     * @param array $postFields
+     * @param array $data
      * @param array $shape
      * @return array|bool
      * @throws SettleApiException
      */
-    public function call(string $method, string $path, array $postFields = [], $shape = [])
+    public function call(string $method, string $path, array $data = [], $shape = [])
     {
         if ($this->validateShapes && !empty($shape)) {
-            $validator = new ShapeValidator($shape, $postFields);
-            $validator->validate();
+            $validator = new ShapeValidator($shape);
+            $validator->validate($data);
         }
-
-        $method = strtoupper($method);
-        $path = ltrim($path, '/');
-        $url = $this->getApiBaseUrl() . $path;
-
-        $headers = $this->getHeaders($method, $url, $postFields);
 
         $curl_options = [
             CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => $headers
         ];
 
-        if (!empty($postFields)) {
-            $curl_options[CURLOPT_POST] = true;
-            $curl_options[CURLOPT_POSTFIELDS] = json_encode($postFields);
+        $method = strtoupper($method);
+        $url = $this->getApiBaseUrl() . ltrim($path, '/');
+
+        if (!empty($data)) {
+            if ($method == 'GET') {
+                $url  .= '?' . http_build_query($data);
+            } else {
+                $curl_options[CURLOPT_POST] = true;
+                $curl_options[CURLOPT_POSTFIELDS] = json_encode($data);
+            }
         }
+
+        $curl_options[CURLOPT_URL] = $url;
+        $curl_options[CURLOPT_HTTPHEADER] = $this->getHeaders($method, $url, $data);
 
         $ch = curl_init();
         curl_setopt_array($ch, $curl_options);
@@ -162,12 +184,12 @@ class SettleApiClient
     /**
      * @param string $method
      * @param string $url
-     * @param array $postFields
+     * @param array $data
      * @return string[]
      */
-    protected function getHeaders(string $method, string $url, array $postFields): array
+    protected function getHeaders(string $method, string $url, array $data): array
     {
-        $content = empty($postFields) ? '' : json_encode($postFields);
+        $content = $method == 'GET' || empty($data) ? '' : json_encode($data);
         $content_digest = base64_encode(hash('sha256', $content, true));
 
         $headers = [
@@ -213,7 +235,8 @@ class SettleApiClient
     {
         $body = file_get_contents('php://input');
         if (empty($callbackUrl)) {
-            $callbackUrl = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $scheme = strtolower($_SERVER['HTTPS'] ?? '') == 'on' ? 'https' : ($_SERVER['REQUEST_SCHEME'] ?? 'http');
+            $callbackUrl = $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '') . ($_SERVER['REQUEST_URI'] ?? '');
         }
 
         $is_valid_request = $this->isValidCallback($callbackUrl, $body, $_SERVER, $method);
@@ -245,19 +268,19 @@ class SettleApiClient
             $normalized_header = str_replace(['http_', '_'], ['', '-'], strtolower($header));
             switch($normalized_header) {
                 case 'authorization':
-                    list($algo, $authorization) = explode(' ', $value, 2);
+                    @list($algo, $authorization) = explode(' ', $value, 2);
                     if ($algo == 'RSA-SHA256') {
-                        $expected_signature = base64_decode($authorization);
+                        $expected_signature = base64_decode((string)$authorization);
                     }
                     break;
                 case 'x-settle-timestamp':
                     $settle_headers[] = 'X-SETTLE-TIMESTAMP=' . $value;
                     break;
                 case 'x-settle-content-digest':
-                    list($algo, $digest) = explode('=', $value, 2);
+                    @list($algo, $digest) = explode('=', $value, 2);
                     if ($algo == 'SHA256') {
                         $settle_headers[] = 'X-SETTLE-CONTENT-DIGEST=' . $value;
-                        $expected_content_digest = $digest;
+                        $expected_content_digest = (string)$digest;
                     }
                     break;
             }
@@ -278,17 +301,31 @@ class SettleApiClient
      * @param string $template
      * @param array $data
      * @param array $extraData
-     * @return array|string|string[]
+     * @return string
+     * @deprecated
      */
     public function createLink($template, array $data = [], array $extraData = [])
+    {
+        return $this->getLink($template, $data, $extraData);
+    }
+
+    /**
+     * @param string $template
+     * @param array $data
+     * @param array $extraData
+     * @return string
+     */
+    public function getLink($template, array $data = [], array $extraData = [])
     {
         switch($template) {
             default:
                 $link = self::SETTLE_LINK;
                 break;
-            case self::LINK_TEMPLATE_DYNAMIC:
             case self::LINK_TEMPLATE_PAYMENT:
                 $link = self::PAYMENT_LINK;
+                break;
+            case self::LINK_TEMPLATE_SHORT_LINK:
+                $link = self::SHORT_LINK_LINK;
                 break;
         }
 
@@ -296,48 +333,29 @@ class SettleApiClient
             $link = str_replace(":{$param}", $value, $link);
         }
 
-        if ($template == self::LINK_TEMPLATE_DYNAMIC) {
-            $extraData['shortLink'] = $link;
-            $dynamic_link = $this->createDynamicLink($extraData);
-            if ($dynamic_link) $link = $dynamic_link;
+        if (!empty($extraData)) {
+            $link .= http_build_query($extraData);
         }
 
         return $link;
     }
 
-    public function createDynamicLink($data)
+    /**
+     * Get mobile friendly deep link
+     *
+     * @param string $short_link
+     * @return string
+     */
+    public function getDeepLink($short_link)
     {
-        $data['environment'] = $this->getIsSandbox() ? 'sandbox' : 'production';
+        $config = $this->getIsSandbox() ? self::DEEP_LINK_CONFIG_SANDBOX : self::DEEP_LINK_CONFIG_PRODUCTION;
 
-        $post_data = json_encode($data);
-        $headers = [
-            'User-Agent: SettleApi PHP Client',
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($post_data),
-            'Accept: application/json',
-        ];
+        $deep_link = 'https://' . $config['baseUrl'] . '?';
+        unset($config['baseUrl']);
 
-        $curl_options = [
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_URL => self::BASE_URL_DYNAMICLINKS,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $post_data,
-        ];
+        $config['link'] = 'https://' . $config['env'] . '://qr/' . $short_link;
+        unset($config['env']);
 
-        $ch = curl_init();
-        curl_setopt_array($ch, $curl_options);
-
-        $response_body = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $response = @json_decode($response_body, true);
-        curl_close($ch);
-
-        if ($response_body !== false && $httpCode == 201) {
-            return $response['data']['shortDynamicLink'];
-        }
-
-        return null;
+        return $deep_link . http_build_query($config);
     }
 }

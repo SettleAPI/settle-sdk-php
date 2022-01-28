@@ -8,7 +8,7 @@ use SettleApi\SettleApiException;
 /**
  * Class StatusCodes
  * @package SettleApi\MerchantApi
- * @link https://api.support.settle.eu/api/reference/rest/v1/merchant.statusCodes/
+ * @link https://settleapi.stoplight.io/docs/settleapis/b3A6MTUzOTU0MzU-merchant-status-codes-list
  */
 class StatusCodes extends SettleApi
 {

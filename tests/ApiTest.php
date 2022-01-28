@@ -81,18 +81,18 @@ test('API: ShortLinks', function() {
     $short_links_api = $merchant_api->short_links;
     $existing_count = count($short_links_api->list()['uris']);
 
-    $shortlink = $short_links_api->create(['callback_uri' => 'https://example.com']);
-    expect($short_links_api->get($shortlink['id'])['id'])->toBe($shortlink['id']);
+    $short_link = $short_links_api->create(['callback_uri' => 'https://example.com']);
+    expect($short_links_api->get($short_link['id'])['id'])->toBe($short_link['id']);
     expect(count($short_links_api->list()['uris']))->toBe($existing_count + 1);
 
-    expect($short_links_api->update($shortlink['id'], ['callback_uri' => 'https://example.com']))->toBeTrue();
+    expect($short_links_api->update($short_link['id'], ['callback_uri' => 'https://example.com']))->toBeTrue();
 
-    expect($short_links_api->delete($shortlink['id']))->toBeTrue();
+    expect($short_links_api->delete($short_link['id']))->toBeTrue();
     expect(count($short_links_api->list()['uris']))->toBe($existing_count);
 
 
     try {
-        $short_links_api->get($shortlink['id']);
+        $short_links_api->get($short_link['id']);
         expect(true)->toBeFalse(); // make sure we don't hit this line
     } catch (SettleApiException $e) {
         expect($e->getCode())->toBe(404);
@@ -116,7 +116,7 @@ test('API: Payment Requests', function() {
     $requests = $payment_requests_api->list();
     expect(isset($requests['items']))->toBeTrue();
     expect(count($requests['items']))->toBeGreaterThan(1);
-    expect('pcqghkrpztq1')->toBeIn(array_column($requests['items'],'tid'));
+//    expect('pcqghkrpztq1')->toBeIn(array_column($requests['items'],'tid'));
 
     $request = $payment_requests_api->get('pcqghkrpztq1');
     expect(isset($request['id']))->toBeTrue();
@@ -206,14 +206,23 @@ test('API: Profile, Balance, StatusCodes', function() {
 
 test('API: Links', function() {
     global $api_client, $merchant_api;
-
-    expect($api_client->createLink('missing'))->toBe(SettleApiClient::SETTLE_LINK);
-    expect($api_client->createLink('payment_link'))->toBe(SettleApiClient::PAYMENT_LINK);
-
-    $api = $merchant_api->payment_requests;
-    expect($api->getPaymentLink('pcqghkrpztq1'))->toBe('https://settle.eu/p/pcqghkrpztq1/');
     $api_client->setIsSandbox(true);
-    expect($api->getDynamicLink('pcqghkrpztq1'))->toBe('https://settledemo.page.link/bqWD');
+
+    // Global
+    expect($api_client->createLink('missing'))->toBe(SettleApiClient::SETTLE_LINK);
+    expect($api_client->createLink(SettleApiClient::LINK_TEMPLATE_PAYMENT))->toBe(SettleApiClient::PAYMENT_LINK);
+    expect($api_client->createLink(SettleApiClient::LINK_TEMPLATE_SHORT_LINK))->toBe(SettleApiClient::SHORT_LINK_LINK);
+
+    // Payment Requests
+    $api = $merchant_api->payment_requests;
+    expect($api->getLink('pcqghkrpztq1'))->toBe('http://settle.eu/p/pcqghkrpztq1/');
+    expect($api->getLink('pcqghkrpztq1', ['a' => 'b', 'c' => 1]))->toBe('http://settle.eu/p/pcqghkrpztq1/a=b&c=1');
+
+    // Deep links
+    $deepLink = 'https://settledemo.page.link?apn=eu.settle.app.sandbox&ibi=eu.settle.app.sandbox&isi=1453180781&ius=eu.settle.app.firebaselink&link=https%3A%2F%2Fsettle-demo%3A%2F%2Fqr%2Fhttp%3A%2F%2Fsettle.eu%2Fp%2Fpypz44mcswz3%2F';
+    expect($api->getDeepLink('pypz44mcswz3'))->toBe($deepLink);
+    expect($api_client->getDeepLink('http://settle.eu/p/pypz44mcswz3/'))->toBe($deepLink);
+
 });
 
 test('API: Utility', function() {
