@@ -27,7 +27,7 @@ class PaymentSend extends SettleApi
      * @return array
      * @throws SettleApiException
      */
-    public function outcome($payment_send_id)
+    public function get($payment_send_id)
     {
         return $this->call('GET', "payment/v2/payment/{$payment_send_id}/");
     }

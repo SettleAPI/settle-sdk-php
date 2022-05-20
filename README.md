@@ -64,8 +64,8 @@ Only `PaymentRequests` class has a few extra helper methods:
 ```php
 $merchant_api->payment_requests->capture($payment_request_id,$currency,$amount)
 $merchant_api->payment_requests->refund($payment_request_id, $currency, $amount);
-$merchant_api->payment_requests->getPaymentLink($payment_request_id);
-$merchant_api->payment_requests->getDynamicLink($payment_request_id);
+$merchant_api->payment_requests->getLink($payment_request_id);
+$merchant_api->payment_requests->getDeepLink($payment_request_id);
 ```
 
 ### Webhooks / Callbacks
@@ -94,13 +94,12 @@ $is_valid = $settle_client->isValidCallback($callbackUrl, $body, $headers, $meth
 $settle_data = $settle_client->getCallbackData();  
 ```
 
-### Dynamic links
-Payment requests have a helper method for creating dynamic links but this is only a subset of all the cases when one might need a dynamic link.
-The main method for creating dynamic links can be found in the `SettleApiClient` class:
+### Deep links
+The SettleApiClient class has a helper method for creating deep links from short links for use on mobile devices. 
+They integrate directly with the Settle mobile app.
+Example:
 
 ```php
-$dynamic_link = $settle_client->createDynamicLink([
-    'shortLink' => 'https://settle.eu/s/gSpEb/pos123/'
-]);
+$short_link = 'https://settle.eu/s/gSpEb/pos123/';
+$deep_link = $settle_client->getDeepLink($short_link);
 ```
-For more options refer to the [documentation](https://support.settle.eu/hc/en-150/articles/4412216178705-Settle-Dynamic-Links) 
