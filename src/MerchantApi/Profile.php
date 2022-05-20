@@ -19,7 +19,7 @@ class Profile extends SettleApi
      */
     public function get($merchant_id)
     {
-        return $this->call('GET', "merchant/{$merchant_id}/");
+        return $this->call('GET', "merchant/v1/merchant/{$merchant_id}/");
     }
 
     /**
@@ -29,6 +29,6 @@ class Profile extends SettleApi
      */
     public function lookup($merchant_id)
     {
-        return $this->call('GET', "merchant_lookup/{$merchant_id}/");
+        return $this->call('GET', "merchant/v1/merchant_lookup/{$merchant_id}/");
     }
 }

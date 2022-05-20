@@ -18,7 +18,7 @@ class Pos extends SettleApi
      */
     public function list()
     {
-        return $this->call('GET', 'pos/');
+        return $this->call('GET', 'merchant/v1/pos/');
     }
 
     /**
@@ -28,7 +28,7 @@ class Pos extends SettleApi
      */
     public function get($pos_id)
     {
-        return $this->call('GET', "pos/{$pos_id}/");
+        return $this->call('GET', "merchant/v1/pos/{$pos_id}/");
     }
 
     /**
@@ -38,7 +38,7 @@ class Pos extends SettleApi
      */
     public function create(array $data)
     {
-        return $this->call('POST', 'pos/', $data);
+        return $this->call('POST', 'merchant/v1/pos/', $data);
     }
 
     /**
@@ -49,7 +49,7 @@ class Pos extends SettleApi
      */
     public function update($pos_id, array $data)
     {
-        return $this->call('PUT', "pos/{$pos_id}/", $data);
+        return $this->call('PUT', "merchant/v1/pos/{$pos_id}/", $data);
     }
 
     /**
@@ -59,6 +59,6 @@ class Pos extends SettleApi
      */
     public function delete($pos_id)
     {
-        return $this->call('DELETE', "pos/{$pos_id}/");
+        return $this->call('DELETE', "merchant/v1/pos/{$pos_id}/");
     }
 }

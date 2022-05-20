@@ -10,7 +10,7 @@ use SettleApi\SettleApi;
  *
  * @property ApiKeys api_keys
  * @property PaymentRequests payment_requests
- * @property PaymentSends payment_sends
+ * @property PaymentSend payment_send
  * @property Pos pos
  * @property Settlements settlements
  * @property ShortLinks short_links
@@ -30,7 +30,7 @@ class MerchantApi extends SettleApi
             'api_keys' => ApiKeys::class,
             'balance' => Balance::class,
             'payment_requests' => PaymentRequests::class,
-            'payment_sends' => PaymentSends::class,
+            'payment_send' => PaymentSend::class,
             'pos' => Pos::class,
             'profile' => Profile::class,
             'settlements' => Settlements::class,

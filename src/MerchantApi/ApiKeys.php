@@ -18,7 +18,7 @@ class ApiKeys extends SettleApi
      */
     public function list()
     {
-        return $this->call('GET', 'api_key/');
+        return $this->call('GET', 'merchant/v1/api_key/');
     }
 
     /**
@@ -28,7 +28,7 @@ class ApiKeys extends SettleApi
      */
     public function get($api_key_id)
     {
-        return $this->call('GET', "api_key/{$api_key_id}/");
+        return $this->call('GET', "merchant/v1/api_key/{$api_key_id}/");
     }
 
     /**
@@ -38,7 +38,7 @@ class ApiKeys extends SettleApi
      */
     public function create(array $data)
     {
-        return $this->call('POST', 'api_key/', $data);
+        return $this->call('POST', 'merchant/v1/api_key/', $data);
     }
 
     /**
@@ -49,7 +49,7 @@ class ApiKeys extends SettleApi
      */
     public function update($api_key_id, array $data)
     {
-        return $this->call('PUT', "api_key/{$api_key_id}/", $data);
+        return $this->call('PUT', "merchant/v1/api_key/{$api_key_id}/", $data);
     }
 
     /**
@@ -59,6 +59,6 @@ class ApiKeys extends SettleApi
      */
     public function delete($api_key_id)
     {
-        return $this->call('DELETE', "api_key/{$api_key_id}/");
+        return $this->call('DELETE', "merchant/v1/api_key/{$api_key_id}/");
     }
 }

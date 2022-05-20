@@ -21,9 +21,8 @@ class SettleApiClient
     protected bool $isSandbox;
     protected bool $validateShapes = true;
 
-    const BASE_URL_PRODUCTION = 'https://api.settle.eu/merchant/v1/';
-    const BASE_URL_SANDBOX = 'https://api.sandbox.settle.eu/merchant/v1/';
-    const BASE_URL_DYNAMICLINKS = 'https://dynamiclinks.settle.dev/api/create';
+    const BASE_URL_PRODUCTION = 'https://api.settle.eu/';
+    const BASE_URL_SANDBOX = 'https://api.sandbox.settle.eu/';
 
     const PUBLIC_KEY_PRODUCTION = "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9iglTBPG1poCw3qFPlxT0MSHO\nt6kgRmpVrLBY9Fx8Zn+zAoY89ZeFhwwnRR8IDQcj4yEAjsoXCxtH3bbh/OdvlFG6\nxdSsAeph6/MSk9YAVKWRWU5ber9cgoQ89KJ14goLUnhhegynUjnz+hdgAET5k9Uc\nsxnmfU7XeT78FP02JQIDAQAB\n-----END PUBLIC KEY-----";
     const PUBLIC_KEY_SANDBOX = "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDS92fCQmAPDpmcgraqPRXgz4Nd\nd/biPxIH5aG1dAQ8dMMcEjGCn7Sm5VcX1iV8L5oW+MlcnHFaZdVyy1Lcqed/8+r0\nQM9cFqQWif35C+eOr/s7/CCY/WXMApqO6YihtHvP+jgjrXltw0LHrUwMWO718udN\nhlg22QkpjhG90kvf3QIDAQAB\n-----END PUBLIC KEY-----";

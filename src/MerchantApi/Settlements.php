@@ -18,7 +18,7 @@ class Settlements extends SettleApi
      */
     public function list()
     {
-        return $this->call('GET', 'settlement/');
+        return $this->call('GET', 'merchant/v1/settlement/');
     }
 
     /**
@@ -28,7 +28,7 @@ class Settlements extends SettleApi
      */
     public function get($settlement_id)
     {
-        return $this->call('GET', "settlement/{$settlement_id}/");
+        return $this->call('GET', "merchant/v1/settlement/{$settlement_id}/");
     }
 
     /**
@@ -38,16 +38,15 @@ class Settlements extends SettleApi
      */
     public function latest()
     {
-        return $this->call('GET', 'last_settlement/');
+        return $this->call('GET', 'merchant/v1/last_settlement/');
     }
 
     /**
      * @return array
      * @throws SettleApiException
-     * @todo This endpoint isn't working properly
      */
     public function report()
     {
-        return $this->call('GET', 'settlement_report/');
+        return $this->call('GET', 'merchant/v1/settlement_report/');
     }
 }

@@ -41,7 +41,7 @@ Each resource (class) can be accessed via magic property on the Merchants API ob
 $merchant_api->api_keys->...;
 $merchant_api->balance->...;
 $merchant_api->payment_requests->...;
-$merchant_api->payment_sends->...;
+$merchant_api->payment_send->...;
 $merchant_api->pos->...;
 $merchant_api->profile->...;
 $merchant_api->settlements->...;

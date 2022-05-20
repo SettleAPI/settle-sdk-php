@@ -19,6 +19,6 @@ class Balance extends SettleApi
      */
     public function get($merchant_id)
     {
-        return $this->call('GET', "merchant/{$merchant_id}/balance/");
+        return $this->call('GET', "merchant/v1/merchant/{$merchant_id}/balance/");
     }
 }

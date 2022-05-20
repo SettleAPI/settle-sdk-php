@@ -19,7 +19,7 @@ class ShortLinks extends SettleApi
      */
     public function list()
     {
-        return $this->call('GET', 'shortlink/');
+        return $this->call('GET', 'merchant/v1/shortlink/');
     }
 
     /**
@@ -29,7 +29,7 @@ class ShortLinks extends SettleApi
      */
     public function get($short_link_id)
     {
-        return $this->call('GET', "shortlink/{$short_link_id}/");
+        return $this->call('GET', "merchant/v1/shortlink/{$short_link_id}/");
     }
 
     /**
@@ -39,7 +39,7 @@ class ShortLinks extends SettleApi
      */
     public function create(array $data)
     {
-        return $this->call('POST', 'shortlink/', $data);
+        return $this->call('POST', 'merchant/v1/shortlink/', $data);
     }
 
     /**
@@ -50,7 +50,7 @@ class ShortLinks extends SettleApi
      */
     public function update($short_link_id, array $data)
     {
-        return $this->call('PUT', "shortlink/{$short_link_id}/", $data);
+        return $this->call('PUT', "merchant/v1/shortlink/{$short_link_id}/", $data);
     }
 
     /**
@@ -60,7 +60,7 @@ class ShortLinks extends SettleApi
      */
     public function delete($short_link_id)
     {
-        return $this->call('DELETE', "shortlink/{$short_link_id}/");
+        return $this->call('DELETE', "merchant/v1/shortlink/{$short_link_id}/");
     }
 
     /**

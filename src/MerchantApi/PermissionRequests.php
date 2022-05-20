@@ -19,7 +19,7 @@ class PermissionRequests extends SettleApi
      */
     public function create(array $data)
     {
-        return $this->call('POST', 'permission_request/', $data, [
+        return $this->call('POST', 'merchant/v1/permission_request/', $data, [
             'customer' => 'required|string',
             'scope' => 'required|string',
             'legal_terms_url' => 'required|string',
@@ -38,7 +38,7 @@ class PermissionRequests extends SettleApi
      */
     public function get($permissionRequestId)
     {
-        return $this->call('GET', "permission_request/{$permissionRequestId}/");
+        return $this->call('GET', "merchant/v1/permission_request/{$permissionRequestId}/");
     }
 
     /**
@@ -48,6 +48,6 @@ class PermissionRequests extends SettleApi
      */
     public function outcome($permissionRequestId)
     {
-        return $this->call('GET', "permission_request/{$permissionRequestId}/outcome/");
+        return $this->call('GET', "merchant/v1/permission_request/{$permissionRequestId}/outcome/");
     }
 }

@@ -118,6 +118,9 @@ test('API: Settlements', function() {
     expect($existing_count)->toBeGreaterThan(0);
 
     expect((int)$settlements_api->get(1)['id'])->toBe(1);
+
+    $settlements = $merchant_api->settlements->report();
+    expect(isset($settlements['summary']))->toBeTrue();
 });
 
 test('API: Payment Requests', function() {
@@ -189,14 +192,6 @@ test('API [not working]: Settlements', function() {
         expect(true)->toBeFalse(); // make sure we don't hit this line
     } catch (SettleApiException $e) {
         expect($e->getCode())->toBe(302);
-    }
-
-    try {
-        // Missing 'X-Appengine-Inbound-Appid' header
-        $merchant_api->settlements->report();
-        expect(true)->toBeFalse(); // make sure we don't hit this line
-    } catch (SettleApiException $e) {
-        expect($e->getCode())->toBe(400);
     }
 });
 

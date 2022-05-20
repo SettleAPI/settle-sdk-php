@@ -46,7 +46,7 @@ class PaymentRequests extends SettleApi
      */
     public function list($query = [])
     {
-        return $this->call('GET', 'payment_request/', $query);
+        return $this->call('GET', 'merchant/v1/payment_request/', $query);
     }
 
     /**
@@ -56,7 +56,7 @@ class PaymentRequests extends SettleApi
      */
     public function get($payment_request_id)
     {
-        return $this->call('GET', "payment_request/{$payment_request_id}/");
+        return $this->call('GET', "merchant/v1/payment_request/{$payment_request_id}/");
     }
 
     /**
@@ -66,7 +66,7 @@ class PaymentRequests extends SettleApi
      */
     public function create(array $data)
     {
-        return $this->call('POST', 'payment_request/', $data, self::REQUEST_SHAPE);
+        return $this->call('POST', 'merchant/v1/payment_request/', $data, self::REQUEST_SHAPE);
     }
 
     /**
@@ -77,7 +77,7 @@ class PaymentRequests extends SettleApi
      */
     public function update($payment_request_id, array $data)
     {
-        $path = "payment_request/{$payment_request_id}/";
+        $path = "merchant/v1/payment_request/{$payment_request_id}/";
 
         return $this->call('PUT', $path, $data, self::REQUEST_SHAPE);
     }
@@ -89,7 +89,7 @@ class PaymentRequests extends SettleApi
      */
     public function outcome($payment_request_id)
     {
-        return $this->call('GET', "payment_request/{$payment_request_id}/outcome/");
+        return $this->call('GET', "merchant/v1/payment_request/{$payment_request_id}/outcome/");
     }
 
     /**

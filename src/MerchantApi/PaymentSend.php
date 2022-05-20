@@ -6,11 +6,11 @@ use SettleApi\SettleApi;
 use SettleApi\SettleApiException;
 
 /**
- * Class PaymentSends
+ * Class PaymentSend
  * @package SettleApi\MerchantApi
  * @link https://settleapi.stoplight.io/docs/settleapis/b3A6MTUzOTU0Mzc-merchant-payment-send-create
  */
-class PaymentSends extends SettleApi
+class PaymentSend extends SettleApi
 {
     /**
      * @param array $data
@@ -19,7 +19,7 @@ class PaymentSends extends SettleApi
      */
     public function create(array $data)
     {
-        return $this->call('POST', 'payment/', $data);
+        return $this->call('POST', 'payment/v2/payment/', $data);
     }
 
     /**
@@ -29,6 +29,6 @@ class PaymentSends extends SettleApi
      */
     public function outcome($payment_send_id)
     {
-        return $this->call('GET', "payment/{$payment_send_id}/outcome/");
+        return $this->call('GET', "payment/v2/payment/{$payment_send_id}/");
     }
 }
